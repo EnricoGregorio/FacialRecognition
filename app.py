@@ -1,22 +1,30 @@
-# pip install opencv-python
 import cv2
+import mediapipe as mp
 
-# Carrega modelo.
-faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+# Inicializar o OpenCV e o mediapipe.
+webcam = cv2.VideoCapture(0)
+solutionFaceRecognition = mp.solutions.face_detection
+faceRecognizer = solutionFaceRecognition.FaceDetection()
+draw = mp.solutions.drawing_utils
 
-# Carrega imagem.
-img = cv2.imread('bah.jpg')
-
-# Converte para escala em cinza.
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-# Detecta rostos.
-faces = faceCascade.detectMultiScale(gray, 1.1, 4)
-
-# Desenha retângulo no rosto detectado.
-for (x, y, w, h) in faces:
-    cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+while True:
+    # Ler as informações da wwbcam.
+    canRead, img = webcam.read()
     
-# Mostra resultado.
-cv2.imshow('img', img)
-cv2.waitKey()
+    if not canRead:
+        break
+    
+    # reconhecer os rostos que tem ali dentro.
+    faceList = faceRecognizer.process(img)
+    if faceList.detections:
+    # desenhar os rostos na imagem.
+        for face in faceList.detections:
+            draw.draw_detection(img, face)
+            
+    cv2.imshow("Belos rostos hein", img)
+    # Quando apertar ESC, para o loop.
+    if cv2.waitKey(5) == 27:
+        break
+    
+webcam.release()
+cv2.destroyAllWindows()
